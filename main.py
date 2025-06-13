@@ -9,3 +9,6 @@ def index():
 @app.route('/send')
 def send():
     return '📨 Send Route is Working!'
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=3434)
