@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, request, jsonify
 import requests
 
@@ -8,15 +7,12 @@ app = Flask(__name__)
 def verify_txn():
     data = request.get_json()
 
-    # ------- Step 1: JSON Validate -------
     if data is None:
         return jsonify(status=False, message="Invalid JSON", error_code=401), 400
 
-    # ------- Step 2: Required Fields -------
     if not all(k in data for k in ("TYPE", "TXNID", "ACCESS_KEY")):
         return jsonify(status=False, message="Missing Required Fields", error_code=707), 400
 
-    # ============ PAYTM =============
     if data["TYPE"] == "PAYTM":
         payload = {
             "MID": data["ACCESS_KEY"],
@@ -42,7 +38,6 @@ def verify_txn():
         else:
             return jsonify(status=False, message="Unknown Error From Paytm", error_code=303)
 
-    # ============ BHARATPE =============
     elif data["TYPE"] == "BHARATPE":
         url = ("https://payments-tesseract.bharatpe.in/api/v1/"
                "merchant/transactions?module=PAYMENT_QR")
@@ -74,13 +69,14 @@ def verify_txn():
             else:
                 return jsonify(status=False, message="Unexpected error from BharatPe API", error_code=303)
 
-    # ============ TYPE INVALID ============
     else:
         return jsonify(status=False,
                        message="Type must be PAYTM or BHARATPE",
                        error_code=808), 400
 
+@app.route("/", methods=["GET"])
+def home():
+    return "Live API Running", 200
 
 if __name__ == "__main__":
-    # Debug ON for dev, switch OFF in prod
-    app.run(debug=False)
+    app.run(host="0.0.0.0", port=5000)
